@@ -8,6 +8,9 @@
 </head>
 <body>
         <div class="container">
+        <div style="text-align:center;margin-bottom:20px;">
+            <img src="logo.png" alt="Logo" style="height:80px;width:auto;">
+        </div>
         <div class="header-with-button">
             <h1>إدارة المبيعات اليومية</h1>
             <a href="reports.html" class="btn-reports">📊 عرض التقارير</a>
@@ -23,14 +26,28 @@
             <div id="loginStatus" style="margin-top:10px;color:#666;font-weight:600;">غير مسجل دخول</div>
         </div>
 
+        <!-- بطاقة الترحيب -->
+        <div id="welcomeCard" class="card" style="display:none;margin-bottom:20px;padding:16px;background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);border-radius:12px;border:none;color:white;">
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+                <div>
+                    <h2 style="margin:0;margin-bottom:8px;font-size:24px;">👋 مرحباً بك، <span id="welcomeUserName" style="font-weight:700;color:#ffeb3b;"></span></h2>
+                    <p style="margin:0;font-size:14px;opacity:0.9;">🏢 الفرع: <strong id="welcomeUserBranch" style="font-weight:600;"></strong></p>
+                </div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                    <a id="btnAdminLink" href="admin.html" class="btn-reports" style="display:none;background:linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);padding:10px 16px;text-decoration:none;border-radius:8px;color:white;font-weight:600;cursor:pointer;transition:transform 0.2s;">⚙️ صفحة الإدارة</a>
+                    <button id="btnLogoutWelcome" style="padding:10px 16px;background:#d32f2f;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;transition:all 0.3s;">تسجيل الخروج</button>
+                </div>
+            </div>
+        </div>
+
         <div id="secureArea" style="display:none;">
         <form id="salesForm">
-            <div class="form-group">
+            <div class="form-group" style="display:none;">
                 <label for="employeeId">الرقم الوظيفي</label>
                 <input type="text" id="employeeId" name="employeeId" placeholder="أدخل الرقم الوظيفي" required>
             </div>
 
-            <div class="form-group">
+            <div class="form-group" style="display:none;">
                 <label for="branch">الفرع</label>
                 <input type="text" id="branch" name="branch" placeholder="أدخل اسم الفرع" required>
             </div>
@@ -45,20 +62,39 @@
                 <input type="number" id="totalSales" name="totalSales" step="0.01" placeholder="أدخل إجمالي المبيعات" required>
             </div>
 
-            <div class="form-group">
-                <label for="totalCash">إجمالي الكاش (تلقائي)</label>
-                <input type="number" id="totalCash" name="totalCash" step="0.01" placeholder="سيتم الحساب تلقائياً" readonly required>
-            </div>
+            
 
             <div class="form-group">
                 <label for="totalCard">إجمالي مدي</label>
                 <input type="number" id="totalCard" name="totalCard" step="0.01" placeholder="أدخل إجمالي مدي" required>
             </div>
 
+           
+
+    
+
             <div class="form-group">
-                <button type="button" id="btnToggleFinancing" style="padding:10px 20px;background:#17a2b8;color:white;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;">💳 تمويل</button>
+                <label for="extraCash">كاش زائد</label>
+                <input type="number" id="extraCash" name="extraCash" step="0.01" placeholder="أدخل الكاش الزائد" value="0">
             </div>
 
+            <div class="form-group">
+                <label for="expenses">المصروفات</label>
+                <input type="number" id="expenses" name="expenses" step="0.01" placeholder="أدخل المصروفات" value="0">
+            </div>
+
+            <div class="form-group" id="notesGroup" style="display: none;">
+                <label for="notes">الملاحظات (مطلوبة للمصروفات) <span style="color: red;">*</span></label>
+                <textarea id="notes" name="notes" rows="4" placeholder="اكتب سبب المصروفات أو ملاحظاتك هنا..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="returns">المردود</label>
+                <input type="number" id="returns" name="returns" step="0.01" placeholder="أدخل المردود" value="0">
+            </div>
+             <div class="form-group">
+                <button type="button" id="btnToggleFinancing" style="padding:10px 20px;background:#17a2b8;color:white;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;">💳 تمويل</button>
+            </div>
             <div id="financingGroup" style="display:none;background:#f0f8ff;padding:20px;border-radius:12px;border:2px solid #17a2b8;margin:10px 0;">
                 <div style="display:flex;align-items:center;gap:15px;margin-bottom:15px;padding-bottom:10px;border-bottom:2px solid #17a2b8;">
                     <img src="financing-icon.svg" alt="تمويل" style="width:48px;height:48px;">
@@ -80,35 +116,27 @@
                     <textarea id="financingNotes" name="financingNotes" rows="3" placeholder="اكتب ملاحظات عن تمارا أو تابي..."></textarea>
                 </div>
             </div>
-
             <div class="form-group">
-                <label for="extraCash">كاش زائد</label>
-                <input type="number" id="extraCash" name="extraCash" step="0.01" placeholder="أدخل الكاش الزائد" value="0">
+                <label for="totalCash">إجمالي الكاش (تلقائي)</label>
+                <input type="number" id="totalCash" name="totalCash" step="0.01" placeholder="سيتم الحساب تلقائياً" readonly required>
             </div>
-
-            <div class="form-group">
-                <label for="expenses">المصروفات</label>
-                <input type="number" id="expenses" name="expenses" step="0.01" placeholder="أدخل المصروفات" value="0">
-            </div>
-
-            <div class="form-group" id="notesGroup" style="display: none;">
-                <label for="notes">الملاحظات (مطلوبة للمصروفات) <span style="color: red;">*</span></label>
-                <textarea id="notes" name="notes" rows="4" placeholder="اكتب سبب المصروفات أو ملاحظاتك هنا..."></textarea>
-            </div>
-
-            <div class="form-group">
-                <label for="returns">المردود</label>
-                <input type="number" id="returns" name="returns" step="0.01" placeholder="أدخل المردود" value="0">
-            </div>
-
             <div class="form-group">
                 <label for="withdrawal">السحب او عجز</label>
                 <input type="number" id="withdrawal" name="withdrawal" step="0.01" placeholder="أدخل السحب" value="0">
             </div>
 
             <div class="form-group">
-                <label for="attachment">إرفاق ملف</label>
-                <input type="file" id="attachment" name="attachment" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+                <label for="attachment">إرفاق ملف من Google Drive</label>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                    <button type="button" id="btnGoogleDrive" style="flex:1;min-width:150px;padding:12px 16px;background:#4285f4;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-size:14px;transition:background 0.3s;" onmouseover="this.style.background='#357ae8'" onmouseout="this.style.background='#4285f4'">📁 اختر من Google Drive</button>
+                </div>
+                <div id="selectedFileInfo" style="margin-top:10px;padding:10px;background:#f0f0f0;border-radius:8px;display:none;border-left:4px solid #4285f4;">
+                    <p style="margin:0;font-size:14px;color:#333;"><strong>الملف المختار:</strong> <span id="selectedFileName" style="color:#4285f4;font-weight:600;"></span></p>
+                    <p style="margin:5px 0 0 0;font-size:12px;color:#666;">الرابط: <a id="selectedFileLink" href="#" target="_blank" style="color:#4285f4;text-decoration:none;">فتح الملف</a></p>
+                </div>
+                <input type="hidden" id="attachment" name="attachment">
+                <input type="hidden" id="attachmentFileId" name="attachmentFileId">
+                <input type="hidden" id="attachmentFileName" name="attachmentFileName">
             </div>
 
             <div class="btn-group">
@@ -166,6 +194,7 @@
     </div>
     </div>
 
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
     <script type="importmap">
         {
             "imports": {
@@ -203,6 +232,8 @@
         const loginStatus = document.getElementById('loginStatus');
         const loginCard = document.getElementById('loginCard');
         const secureArea = document.getElementById('secureArea');
+        const welcomeCard = document.getElementById('welcomeCard');
+        const btnLogoutWelcome = document.getElementById('btnLogoutWelcome');
         let currentEmployee = null;
 
         const totalSalesInput = document.getElementById('totalSales');
@@ -344,8 +375,11 @@
             const returns = parseFloat(document.getElementById('returns').value) || 0;
             const withdrawal = parseFloat(document.getElementById('withdrawal').value) || 0;
             const notes = document.getElementById('notes').value || '-';
-            const attachmentInput = document.getElementById('attachment');
-            const attachmentName = attachmentInput.files.length > 0 ? attachmentInput.files[0].name : 'لا يوجد';
+            
+            // بيانات Google Drive
+            const attachmentFileName = document.getElementById('attachmentFileName').value;
+            const attachmentFileId = document.getElementById('attachmentFileId').value;
+            const attachmentName = attachmentFileName || 'لا يوجد';
 
             const total = totalCash + totalCard;
 
@@ -405,7 +439,9 @@
                 withdrawal,
                 notes,
                 financingNotes: document.getElementById('financingNotes').value || '-',
-                attachment: attachmentName
+                attachment: attachmentName,
+                attachmentFileId: attachmentFileId || null,
+                attachmentLink: attachmentFileId ? `https://drive.google.com/file/d/${attachmentFileId}/view` : null
             };
 
             try {
@@ -429,6 +465,11 @@
                 document.getElementById('branch').value = currentEmployee.branchName || '';
                 document.getElementById('branch').readOnly = true;
                 document.getElementById('saleDate').value = new Date().toISOString().split('T')[0];
+                // مسح بيانات Google Drive
+                document.getElementById('attachmentFileId').value = '';
+                document.getElementById('attachmentFileName').value = '';
+                document.getElementById('selectedFileInfo').style.display = 'none';
+                document.getElementById('selectedFileName').textContent = '';
                 result.classList.remove('show');
             } catch (err) {
                 console.error(err);
@@ -454,6 +495,20 @@
                 currentEmployee = { id: snap.docs[0].id, ...data };
                 loginStatus.textContent = `مسجل كـ ${data.name} - فرع: ${data.branchName || '-'}`;
                 loginStatus.style.color = '#28a745';
+                
+                // إظهار بطاقة الترحيب
+                document.getElementById('welcomeUserName').textContent = data.name;
+                document.getElementById('welcomeUserBranch').textContent = data.branchName || '-';
+                welcomeCard.style.display = 'block';
+                
+                // عرض زر الإدارة فقط للمدراء
+                const adminBtn = document.getElementById('btnAdminLink');
+                if (data.permissions && data.permissions.includes('manageEmployees')) {
+                    adminBtn.style.display = 'inline-block';
+                } else {
+                    adminBtn.style.display = 'none';
+                }
+                
                 document.getElementById('employeeId').value = data.employeeId;
                 document.getElementById('employeeId').readOnly = true;
                 document.getElementById('branch').value = data.branchName || '';
@@ -474,6 +529,12 @@
                     currentEmployee = { id: 'bootstrap', name: 'Setup Mode', branchName: '' };
                     loginStatus.textContent = 'وضع إنشاء أول حساب (لا توجد بيانات موظفين)';
                     loginStatus.style.color = '#f39c12';
+                    
+                    // إظهار بطاقة الترحيب للوضع الافتراضي
+                    document.getElementById('welcomeUserName').textContent = 'Setup Mode';
+                    document.getElementById('welcomeUserBranch').textContent = 'جميع الفروع';
+                    welcomeCard.style.display = 'block';
+                    
                     secureArea.style.display = 'block';
                     loginCard.style.display = 'none';
                 }
@@ -482,14 +543,137 @@
             }
         }
 
+        // زر تسجيل الخروج من بطاقة الترحيب
+        btnLogoutWelcome.addEventListener('click', function() {
+            if (confirm('هل تريد تسجيل الخروج؟')) {
+                currentEmployee = null;
+                loginStatus.textContent = 'غير مسجل دخول';
+                loginStatus.style.color = '#666';
+                welcomeCard.style.display = 'none';
+                secureArea.style.display = 'none';
+                loginCard.style.display = 'block';
+                loginEmployeeId.value = '';
+                loginPassword.value = '';
+                form.reset();
+                setFormEnabled(false);
+            }
+        });
+
         form.addEventListener('reset', function() {
             result.classList.remove('show');
         });
 
         btnLogin.addEventListener('click', handleLogin);
         setFormEnabled(false);
+
+        // Google Drive Integration
+        // ملاحظة: استبدل بـ Client ID الخاص بك من Google Cloud Console
+        const GOOGLE_CLIENT_ID = '1035871153322-blaqsn0jds9at16k1ucpeoa0f4vce073.apps.googleusercontent.com';
+        const GOOGLE_API_KEY = 'AIzaSyDnZ2dkhtkouVaRIw4Pi1krSeFS71e8jGg';
+        let pickerInited = false;
+        let gauth;
+
+        // التحقق من الإعدادات وتسجيل التصحيح
+        function checkGoogleDriveSetup() {
+            if (GOOGLE_CLIENT_ID.includes('YOUR_') || GOOGLE_API_KEY.includes('YOUR_')) {
+                console.warn('⚠️ تنبيه: لم يتم تحديث بيانات Google Drive!');
+                alert('⚠️ تحذير: بيانات Google Drive لم تُحدّث بعد!\n\nاقرأ ملف: FIX_AUTHORIZATION_ERROR.md');
+            } else {
+                console.log('✅ بيانات Google Drive محدثة بنجاح');
+            }
+        }
+
+        function initGooglePicker() {
+            gapi.load('auth', {'callback': onAuthApiLoad});
+            gapi.load('picker', {'callback': onPickerApiLoad});
+        }
+
+        function onAuthApiLoad() {
+            window.gapi.auth.authorize({
+                'client_id': GOOGLE_CLIENT_ID,
+                'scope': ['https://www.googleapis.com/auth/drive.readonly'],
+                'immediate': false
+            }, handleAuthResult);
+        }
+
+        function handleAuthResult(authResult) {
+            if (authResult && !authResult.error) {
+                pickerInited = true;
+            } else if (authResult && authResult.error) {
+                console.error('❌ خطأ في المصادقة:', authResult.error);
+                
+                // رسائل تصحيح الأخطاء الشاملة
+                if (authResult.error === 'access_denied') {
+                    alert('⛔ تم رفض الوصول. قد لا توافق على استخدام Google Drive في التطبيق.');
+                } else if (authResult.error === 'invalid_client') {
+                    alert('⚠️ مشكلة في إعدادات Google:\n\n1. تأكد من تحديث GOOGLE_CLIENT_ID\n2. تحقق من أن النطاق مسجل في Google Cloud Console\n3. اقرأ ملف: FIX_AUTHORIZATION_ERROR.md');
+                } else if (authResult.error === 'invalid_request' || authResult.error === 'origin_mismatch' || authResult.error === 'Permission denied') {
+                    alert('⚠️ مشكلة في إعدادات OAuth:\n\n1. اقرأ: FIX_ERROR_400_INVALID_REQUEST.md أو QUICK_ERROR_FIX.md\n2. تأكد من إعداد OAuth Consent Screen بشكل صحيح\n3. سجل النطاق في Authorized JavaScript origins\n4. انتظر 5 دقائق ثم حاول مرة أخرى');
+                } else {
+                    alert('❌ خطأ في المصادقة: ' + authResult.error + '\n\nاقرأ ملف: FIX_AUTHORIZATION_ERROR.md للحل');
+                }
+            }
+        }
+
+        function onPickerApiLoad() {
+            pickerInited = true;
+            checkGoogleDriveSetup();
+        }
+
+        function createPicker() {
+            if (!pickerInited) {
+                initGooglePicker();
+                return;
+            }
+
+            const token = gapi.auth.getToken();
+            if (!token) {
+                gapi.auth.authorize({
+                    'client_id': GOOGLE_CLIENT_ID,
+                    'scope': ['https://www.googleapis.com/auth/drive.readonly'],
+                    'immediate': false
+                }, handleAuthResult);
+                return;
+            }
+
+            const view = new google.picker.View(google.picker.ViewId.DOCS);
+            view.setMimeTypes(['image/jpeg', 'image/png', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']);
+
+            const picker = new google.picker.PickerBuilder()
+                .enableFeature(google.picker.Feature.NAV_HIDDEN)
+                .setAppId(GOOGLE_CLIENT_ID.split('.')[0])
+                .setOAuthToken(token.access_token)
+                .addView(view)
+                .setDeveloperKey(GOOGLE_API_KEY)
+                .setCallback(pickerCallback)
+                .build();
+
+            picker.setVisible(true);
+        }
+
+        function pickerCallback(data) {
+            if (data.action === google.picker.Action.PICKED) {
+                const fileData = data.docs[0];
+                document.getElementById('attachmentFileId').value = fileData.id;
+                document.getElementById('attachmentFileName').value = fileData.name;
+                document.getElementById('selectedFileName').textContent = fileData.name;
+                document.getElementById('selectedFileLink').href = 'https://drive.google.com/file/d/' + fileData.id + '/view';
+                document.getElementById('selectedFileInfo').style.display = 'block';
+            }
+        }
+
+        // زر اختيار من Google Drive
+        document.getElementById('btnGoogleDrive').addEventListener('click', function(e) {
+            e.preventDefault();
+            createPicker();
+        });
+    
         secureArea.style.display = 'none';
         bootstrapAccessIfEmpty();
     </script>
+
+    <footer style="position:fixed;bottom:0;left:0;right:0;text-align:center;padding:15px;background:#f8f9fa;border-top:2px solid #e0e0e0;color:#666;font-size:14px;">
+        © 2026 Copy Right by Mazen Algarne. All rights reserved.
+    </footer>
 </body>
 </html>

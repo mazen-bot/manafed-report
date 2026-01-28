@@ -8,10 +8,44 @@
 </head>
 <body>
     <div class="reports-container">
+        <div style="text-align:center;margin-bottom:20px;">
+            <img src="logo.png" alt="Logo" style="height:80px;width:auto;">
+        </div>
         <div class="header">
             <h1>📊 تقارير المبيعات اليومية</h1>
             <a href="index.html" class="btn-back">← العودة للصفحة الرئيسية</a>
         </div>
+
+        <!-- نموذج تسجيل الدخول -->
+        <div id="loginSection" class="card" style="max-width:500px;margin:20px auto;padding:20px;background:#f8f9fa;border-radius:12px;border:2px solid #e0e0e0;">
+            <h2 style="text-align:center;margin-bottom:16px;color:#333;">🔐 تسجيل الدخول للتقارير</h2>
+            <div style="margin-bottom:12px;">
+                <label style="display:block;margin-bottom:6px;font-weight:600;color:#555;">الرقم الوظيفي:</label>
+                <input type="text" id="loginEmployeeId" placeholder="أدخل الرقم الوظيفي" style="width:100%;padding:12px;border:2px solid #e0e0e0;border-radius:10px;font-size:15px;">
+            </div>
+            <div style="margin-bottom:12px;">
+                <label style="display:block;margin-bottom:6px;font-weight:600;color:#555;">كلمة المرور:</label>
+                <input type="password" id="loginPassword" placeholder="أدخل كلمة المرور" style="width:100%;padding:12px;border:2px solid #e0e0e0;border-radius:10px;font-size:15px;">
+            </div>
+            <button id="btnLogin" style="width:100%;padding:14px;background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);color:white;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;transition:transform 0.2s;">تسجيل الدخول</button>
+            <div id="loginMessage" style="margin-top:12px;text-align:center;color:#666;font-weight:600;"></div>
+        </div>
+
+        <div id="reportsContent" style="display:none;">
+            <!-- معلومات المستخدم الحالي -->
+            <div class="card" style="margin-bottom:20px;padding:16px;background:#e8f5e9;border-radius:12px;border:2px solid #4caf50;">
+                <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+                    <div>
+                        <strong style="color:#2e7d32;font-size:16px;">👤 المستخدم الحالي:</strong>
+                        <span id="currentUserName" style="color:#1b5e20;font-weight:600;margin-right:8px;"></span>
+                        <span style="color:#666;margin-right:8px;">|</span>
+                        <strong style="color:#2e7d32;">🏢 الفرع:</strong>
+                        <span id="currentUserBranch" style="color:#1b5e20;font-weight:600;margin-right:8px;"></span>
+                    </div>
+                    <button id="btnLogout" style="padding:8px 16px;background:#d32f2f;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;">تسجيل الخروج</button>
+                </div>
+                <div id="userPermissionsInfo" style="margin-top:10px;color:#666;font-size:13px;"></div>
+            </div>
 
         <div class="filters-section">
             <div class="search-box">
@@ -37,8 +71,8 @@
                 </div>
 
                 <button class="btn-reset-filter" onclick="resetFilters()">🔄 إعادة تعيين</button>
-                <button class="btn-export" onclick="exportToExcel()">📥 تصدير Excel</button>
-                <button class="btn-clear-all" onclick="clearAllData()">🗑️ مسح جميع البيانات</button>
+                <button class="btn-export" onclick="exportToExcel()" id="btnExport">📥 تصدير Excel</button>
+                <button class="btn-clear-all" onclick="clearAllData()" id="btnClearAll" style="display:none;">🗑️ مسح جميع البيانات</button>
             </div>
         </div>
 
@@ -89,7 +123,7 @@
                         <th>السحب</th>
                         <th>الملاحظات</th>
                         <th>الملف المرفق</th>
-                        <th>الإجراءات</th>
+                        <th id="actionsHeader">الإجراءات</th>
                     </tr>
                 </thead>
                 <tbody id="tableBody">
@@ -99,6 +133,7 @@
                 </tbody>
             </table>
         </div>
+        </div> <!-- نهاية reportsContent -->
     </div>
 
     <script type="importmap">
@@ -111,32 +146,156 @@
     </script>
     <script type="module">
         import { initializeApp } from "firebase/app";
-        import { getFirestore, collection, getDocs, orderBy, query, deleteDoc, doc } from "firebase/firestore";
+        import { getFirestore, collection, getDocs, orderBy, query, deleteDoc, doc, where } from "firebase/firestore";
 
-        // عدل هذه القيم من إعدادات مشروع Firebase → Web app
-       // Import the functions you need from the SDKs you need
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+        const firebaseConfig = {
+            apiKey: "AIzaSyA3PIfkz7RFVWYGltiyfkUmzQZ7MBPp_hs",
+            authDomain: "manafed-3f18b.firebaseapp.com",
+            databaseURL: "https://manafed-3f18b-default-rtdb.firebaseio.com",
+            projectId: "manafed-3f18b",
+            storageBucket: "manafed-3f18b.firebasestorage.app",
+            messagingSenderId: "977750267755",
+            appId: "1:977750267755:web:172b418b4e4ae683b79e2e"
+        };
 
-// Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyA3PIfkz7RFVWYGltiyfkUmzQZ7MBPp_hs",
-  authDomain: "manafed-3f18b.firebaseapp.com",
-  databaseURL: "https://manafed-3f18b-default-rtdb.firebaseio.com",
-  projectId: "manafed-3f18b",
-  storageBucket: "manafed-3f18b.firebasestorage.app",
-  messagingSenderId: "977750267755",
-  appId: "1:977750267755:web:172b418b4e4ae683b79e2e"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+        const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
         let allData = [];
+        let currentUser = null;
+
+        // تسجيل الدخول
+        document.getElementById('btnLogin').addEventListener('click', async function() {
+            const employeeId = document.getElementById('loginEmployeeId').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+            const loginMessage = document.getElementById('loginMessage');
+
+            if (!employeeId || !password) {
+                loginMessage.textContent = '⚠️ الرجاء إدخال الرقم الوظيفي وكلمة المرور';
+                loginMessage.style.color = '#d32f2f';
+                return;
+            }
+
+            try {
+                const q = query(
+                    collection(db, 'employees'),
+                    where('employeeId', '==', employeeId),
+                    where('password', '==', password)
+                );
+                const snapshot = await getDocs(q);
+
+                if (snapshot.empty) {
+                    loginMessage.textContent = '❌ بيانات الدخول غير صحيحة';
+                    loginMessage.style.color = '#d32f2f';
+                    return;
+                }
+
+                const employeeData = snapshot.docs[0].data();
+                currentUser = {
+                    id: snapshot.docs[0].id,
+                    employeeId: employeeData.employeeId,
+                    name: employeeData.name,
+                    branchId: employeeData.branchId,
+                    branchName: employeeData.branchName,
+                    permissions: employeeData.permissions || []
+                };
+
+                // حفظ الجلسة
+                localStorage.setItem('reportsSession', JSON.stringify({
+                    user: currentUser,
+                    timestamp: Date.now()
+                }));
+
+                loginMessage.textContent = '✅ تم تسجيل الدخول بنجاح';
+                loginMessage.style.color = '#4caf50';
+
+                setTimeout(() => {
+                    document.getElementById('loginSection').style.display = 'none';
+                    document.getElementById('reportsContent').style.display = 'block';
+                    initializeReports();
+                }, 500);
+
+            } catch (err) {
+                console.error(err);
+                loginMessage.textContent = '❌ حدث خطأ في تسجيل الدخول';
+                loginMessage.style.color = '#d32f2f';
+            }
+        });
+
+        // تسجيل الخروج
+        document.getElementById('btnLogout').addEventListener('click', function() {
+            if (confirm('هل تريد تسجيل الخروج؟')) {
+                localStorage.removeItem('reportsSession');
+                currentUser = null;
+                document.getElementById('reportsContent').style.display = 'none';
+                document.getElementById('loginSection').style.display = 'block';
+                document.getElementById('loginEmployeeId').value = '';
+                document.getElementById('loginPassword').value = '';
+                document.getElementById('loginMessage').textContent = '';
+            }
+        });
+
+        // التحقق من الجلسة السابقة
+        async function checkExistingSession() {
+            const sessionData = localStorage.getItem('reportsSession');
+            if (sessionData) {
+                try {
+                    const { user, timestamp } = JSON.parse(sessionData);
+                    const elapsed = Date.now() - timestamp;
+                    const oneHour = 60 * 60 * 1000;
+
+                    if (elapsed < oneHour) {
+                        currentUser = user;
+                        document.getElementById('loginSection').style.display = 'none';
+                        document.getElementById('reportsContent').style.display = 'block';
+                        await initializeReports();
+                        return;
+                    } else {
+                        localStorage.removeItem('reportsSession');
+                    }
+                } catch (err) {
+                    console.error(err);
+                    localStorage.removeItem('reportsSession');
+                }
+            }
+        }
+
+        async function initializeReports() {
+            // عرض معلومات المستخدم
+            document.getElementById('currentUserName').textContent = currentUser.name;
+            document.getElementById('currentUserBranch').textContent = currentUser.branchName;
+
+            // التحقق من الصلاحيات
+            const hasViewReports = currentUser.permissions.includes('viewReports');
+            const hasManageEmployees = currentUser.permissions.includes('manageEmployees');
+            const hasExport = currentUser.permissions.includes('export');
+
+            let permissionsText = '📋 الصلاحيات: ';
+            if (hasViewReports) permissionsText += 'عرض التقارير ';
+            if (hasManageEmployees) permissionsText += '| إدارة كاملة ';
+            if (hasExport) permissionsText += '| تصدير البيانات ';
+            document.getElementById('userPermissionsInfo').textContent = permissionsText;
+
+            // إخفاء/إظهار الأزرار حسب الصلاحيات
+            if (!hasManageEmployees) {
+                // إخفاء زر مسح جميع البيانات للموظفين العاديين
+                document.getElementById('btnClearAll').style.display = 'none';
+                // إخفاء عمود الإجراءات
+                document.getElementById('actionsHeader').style.display = 'none';
+            } else {
+                document.getElementById('btnClearAll').style.display = 'inline-block';
+                document.getElementById('actionsHeader').style.display = 'table-cell';
+            }
+
+            if (!hasExport) {
+                document.getElementById('btnExport').style.display = 'none';
+            }
+
+            await loadData();
+        }
 
         window.onload = function() {
-            loadData();
+            checkExistingSession();
         };
 
         async function loadData() {
@@ -152,6 +311,13 @@ const app = initializeApp(firebaseConfig);
                         createdAt
                     };
                 });
+
+                // تصفية البيانات حسب فرع الموظف
+                if (currentUser && !currentUser.permissions.includes('manageEmployees')) {
+                    // الموظفون العاديون يرون فقط تقارير فرعهم
+                    allData = allData.filter(record => record.branch === currentUser.branchName);
+                }
+
                 displayData(allData);
                 updateStats(allData);
                 populateBranchFilter();
@@ -169,12 +335,31 @@ const app = initializeApp(firebaseConfig);
                 return;
             }
 
+            const hasManagePermission = currentUser && currentUser.permissions.includes('manageEmployees');
+
             tableBody.innerHTML = '';
             data.forEach((record, index) => {
                 const row = document.createElement('tr');
                 const financingNotes = record.financingNotes && record.financingNotes !== '-' ? record.financingNotes : 'لا توجد ملاحظات';
                 const tamaraTooltip = (record.tamara && record.tamara > 0) ? `title="ملاحظات: ${financingNotes}" style="cursor:help;"` : '';
                 const tabbyTooltip = (record.tabby && record.tabby > 0) ? `title="ملاحظات: ${financingNotes}" style="cursor:help;"` : '';
+                
+                // تحديد محتوى عمود الإجراءات حسب الصلاحية
+                let actionsCell = '';
+                if (hasManagePermission) {
+                    actionsCell = `
+                        <td>
+                            <button class="btn-view" onclick="viewDetails('${record.id}')">👁️</button>
+                            <button class="btn-delete" onclick="deleteRecord('${record.id}')">🗑️</button>
+                        </td>
+                    `;
+                } else {
+                    actionsCell = `
+                        <td style="display:none;">
+                            <button class="btn-view" onclick="viewDetails('${record.id}')">👁️</button>
+                        </td>
+                    `;
+                }
                 
                 row.innerHTML = `
                     <td>${index + 1}</td>
@@ -192,11 +377,8 @@ const app = initializeApp(firebaseConfig);
                     <td>${parseFloat(record.returns).toFixed(2)}</td>
                     <td>${parseFloat(record.withdrawal).toFixed(2)}</td>
                     <td class="notes-cell">${record.notes || '-'}</td>
-                    <td>${record.attachment || 'لا يوجد'}</td>
-                    <td>
-                        <button class="btn-view" onclick="viewDetails('${record.id}')">👁️</button>
-                        <button class="btn-delete" onclick="deleteRecord('${record.id}')">🗑️</button>
-                    </td>
+                    <td>${getAttachmentCell(record)}</td>
+                    ${actionsCell}
                 `;
                 tableBody.appendChild(row);
             });
@@ -207,6 +389,14 @@ const app = initializeApp(firebaseConfig);
             const dateStr = date.toLocaleDateString('ar-EG');
             const timeStr = date.toLocaleTimeString('ar-EG');
             return `${dateStr}<br>${timeStr}`;
+        }
+
+        function getAttachmentCell(record) {
+            if (record.attachmentFileId) {
+                const fileLink = `https://drive.google.com/file/d/${record.attachmentFileId}/view`;
+                return `<a href="${fileLink}" target="_blank" style="color:#4285f4;text-decoration:none;font-weight:600;">📁 ${record.attachment || 'فتح الملف'}</a>`;
+            }
+            return record.attachment || 'لا يوجد';
         }
 
         function updateStats(data) {
@@ -226,8 +416,15 @@ const app = initializeApp(firebaseConfig);
         }
 
         function populateBranchFilter() {
-            const branches = [...new Set(allData.map(record => record.branch))];
             const filterBranch = document.getElementById('filterBranch');
+            
+            // للموظفين العاديين، إخفاء فلتر الفرع لأنهم يرون فرعهم فقط
+            if (currentUser && !currentUser.permissions.includes('manageEmployees')) {
+                filterBranch.closest('.filter-group').style.display = 'none';
+                return;
+            }
+
+            const branches = [...new Set(allData.map(record => record.branch))];
             filterBranch.innerHTML = '<option value="">جميع الفروع</option>';
             branches.forEach(branch => {
                 const option = document.createElement('option');
@@ -322,6 +519,12 @@ const app = initializeApp(firebaseConfig);
         window.viewDetails = viewDetails;
 
         async function deleteRecord(id) {
+            // التحقق من الصلاحية
+            if (!currentUser || !currentUser.permissions.includes('manageEmployees')) {
+                alert('⛔ ليس لديك صلاحية حذف السجلات');
+                return;
+            }
+
             if (!confirm('هل أنت متأكد من حذف هذا السجل؟')) return;
             try {
                 await deleteDoc(doc(db, 'sales', id));
@@ -338,6 +541,12 @@ const app = initializeApp(firebaseConfig);
         window.deleteRecord = deleteRecord;
 
         async function clearAllData() {
+            // التحقق من الصلاحية
+            if (!currentUser || !currentUser.permissions.includes('manageEmployees')) {
+                alert('⛔ ليس لديك صلاحية حذف جميع البيانات');
+                return;
+            }
+
             if (!confirm('هل أنت متأكد من حذف جميع البيانات؟ هذا الإجراء لا يمكن التراجع عنه!')) return;
             if (!confirm('تأكيد نهائي: سيتم حذف جميع السجلات!')) return;
             try {
@@ -397,5 +606,9 @@ const app = initializeApp(firebaseConfig);
 
         window.exportToExcel = exportToExcel;
     </script>
+
+    <footer style="position:fixed;bottom:0;left:0;right:0;text-align:center;padding:15px;background:#f8f9fa;border-top:2px solid #e0e0e0;color:#666;font-size:14px;">
+        © 2026 Copy Right by Mazen Algarne. All rights reserved.
+    </footer>
 </body>
 </html>

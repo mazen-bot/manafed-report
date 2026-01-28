@@ -49,6 +49,67 @@ body {
     box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
 }
 
+/* تنسيقات نظام تسجيل الدخول */
+.card {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 20px;
+    border: 2px solid #e0e0e0;
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    border-color: #667eea;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+}
+
+#loginSection {
+    animation: fadeInUp 0.5s ease;
+}
+
+#reportsContent {
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+#btnLogin {
+    transition: all 0.3s ease;
+}
+
+#btnLogin:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
+}
+
+#btnLogout {
+    transition: all 0.3s ease;
+}
+
+#btnLogout:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(211, 47, 47, 0.3);
+}
+
+
 .filters-section {
     background: #f8f9fa;
     padding: 20px;

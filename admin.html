@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>إدارة الفروع والموظفين</title>
+
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; color: #333; }
@@ -34,7 +35,12 @@
 <body>
     <div class="container">
         <div class="header">
+            <div style="text-align:center;margin-bottom:20px;width:100%;">
+                <img src="logo.png" alt="Logo" style="height:80px;width:auto;">
+            </div>
             <h1>إدارة الفروع والموظفين</h1>
+            <a href="reports.html" class="btn"> التقارير  </a>
+            <a href="index.html" class="btn">← العودة للصفحة الرئيسية</a>
         </div>
 
         <div class="card" id="loginCard" style="margin-bottom:16px;">
@@ -293,6 +299,15 @@
                     return;
                 }
                 const data = snap.docs[0].data();
+                
+                // التحقق من أن المستخدم مدير
+                if (!data.permissions || !data.permissions.includes('manageEmployees')) {
+                    alert('⛔ معذرة، هذه الصفحة مخصصة للمدراء فقط');
+                    loginEmpId.value = '';
+                    loginPassword.value = '';
+                    return;
+                }
+                
                 currentUser = { id: snap.docs[0].id, ...data };
                 localStorage.setItem('adminSession', JSON.stringify({
                     user: currentUser,
@@ -318,6 +333,13 @@
                     const elapsed = Date.now() - timestamp;
                     const tenMinutes = 10 * 60 * 1000;
                     if (elapsed < tenMinutes) {
+                        // التحقق من أن المستخدم مدير
+                        if (!user.permissions || !user.permissions.includes('manageEmployees')) {
+                            localStorage.removeItem('adminSession');
+                            alert('⛔ معذرة، هذه الصفحة مخصصة للمدراء فقط');
+                            return;
+                        }
+                        
                         currentUser = user;
                         loginStatus.textContent = `تم الدخول: ${user.name} - فرع: ${user.branchName || '-'}`;
                         loginStatus.style.color = '#28a745';
@@ -392,5 +414,9 @@
         btnLogin.addEventListener('click', handleLogin);
         bootstrapAccessIfEmpty();
     </script>
+
+    <footer style="position:fixed;bottom:0;left:0;right:0;text-align:center;padding:15px;background:#f8f9fa;border-top:2px solid #e0e0e0;color:#666;font-size:14px;">
+        © 2026 Copy Right by Mazen Algarne. All rights reserved.
+    </footer>
 </body>
 </html>
