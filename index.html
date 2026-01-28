@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة المبيعات</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+        <div class="container">
+        <div class="header-with-button">
+            <h1>إدارة المبيعات اليومية</h1>
+            <a href="reports.html" class="btn-reports">📊 عرض التقارير</a>
+        </div>
+
+        <div class="card" id="loginCard" style="margin-bottom:20px;padding:16px;border:1px solid #e0e0e0;border-radius:12px;background:#f8f9fa;">
+            <h3 style="margin-bottom:12px;color:#444;">تسجيل دخول الموظف</h3>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                <input type="text" id="loginEmployeeId" placeholder="الرقم الوظيفي" style="flex:1;min-width:160px;padding:10px;border:2px solid #e0e0e0;border-radius:10px;">
+                <input type="password" id="loginPassword" placeholder="كلمة المرور" style="flex:1;min-width:160px;padding:10px;border:2px solid #e0e0e0;border-radius:10px;">
+                <button id="btnLogin" style="flex:0 0 auto;padding:12px 16px;">تسجيل الدخول</button>
+            </div>
+            <div id="loginStatus" style="margin-top:10px;color:#666;font-weight:600;">غير مسجل دخول</div>
+        </div>
+
+        <div id="secureArea" style="display:none;">
+        <form id="salesForm">
+            <div class="form-group">
+                <label for="employeeId">الرقم الوظيفي</label>
+                <input type="text" id="employeeId" name="employeeId" placeholder="أدخل الرقم الوظيفي" required>
+            </div>
+
+            <div class="form-group">
+                <label for="branch">الفرع</label>
+                <input type="text" id="branch" name="branch" placeholder="أدخل اسم الفرع" required>
+            </div>
+
+            <div class="form-group">
+                <label for="saleDate" style="font-size:16px;font-weight:bold;color:#2c3e50;">📅 التاريخ</label>
+                <input type="date" id="saleDate" name="saleDate" required style="padding:14px;font-size:16px;border:3px solid #3498db;border-radius:10px;background:#e8f4fc;color:#2c3e50;font-weight:600;cursor:pointer;">
+            </div>
+
+            <div class="form-group">
+                <label for="totalSales">إجمالي المبيعات</label>
+                <input type="number" id="totalSales" name="totalSales" step="0.01" placeholder="أدخل إجمالي المبيعات" required>
+            </div>
+
+            <div class="form-group">
+                <label for="totalCash">إجمالي الكاش (تلقائي)</label>
+                <input type="number" id="totalCash" name="totalCash" step="0.01" placeholder="سيتم الحساب تلقائياً" readonly required>
+            </div>
+
+            <div class="form-group">
+                <label for="totalCard">إجمالي مدي</label>
+                <input type="number" id="totalCard" name="totalCard" step="0.01" placeholder="أدخل إجمالي مدي" required>
+            </div>
+
+            <div class="form-group">
+                <button type="button" id="btnToggleFinancing" style="padding:10px 20px;background:#17a2b8;color:white;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;">💳 تمويل</button>
+            </div>
+
+            <div id="financingGroup" style="display:none;background:#f0f8ff;padding:20px;border-radius:12px;border:2px solid #17a2b8;margin:10px 0;">
+                <div style="display:flex;align-items:center;gap:15px;margin-bottom:15px;padding-bottom:10px;border-bottom:2px solid #17a2b8;">
+                    <img src="financing-icon.svg" alt="تمويل" style="width:48px;height:48px;">
+                    <h3 style="margin:0;color:#17a2b8;font-size:20px;font-weight:bold;">قسم التمويل</h3>
+                </div>
+                
+                <div class="form-group">
+                    <label for="tamara">تمارا</label>
+                    <input type="number" id="tamara" name="tamara" step="0.01" placeholder="أدخل تمارا" value="0">
+                </div>
+
+                <div class="form-group">
+                    <label for="tabby">تابي</label>
+                    <input type="number" id="tabby" name="tabby" step="0.01" placeholder="أدخل تابي" value="0">
+                </div>
+
+                <div class="form-group" id="financingNotesGroup" style="display: none;">
+                    <label for="financingNotes">ملاحظات التمويل (إجباري) <span style="color: red;">*</span></label>
+                    <textarea id="financingNotes" name="financingNotes" rows="3" placeholder="اكتب ملاحظات عن تمارا أو تابي..."></textarea>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="extraCash">كاش زائد</label>
+                <input type="number" id="extraCash" name="extraCash" step="0.01" placeholder="أدخل الكاش الزائد" value="0">
+            </div>
+
+            <div class="form-group">
+                <label for="expenses">المصروفات</label>
+                <input type="number" id="expenses" name="expenses" step="0.01" placeholder="أدخل المصروفات" value="0">
+            </div>
+
+            <div class="form-group" id="notesGroup" style="display: none;">
+                <label for="notes">الملاحظات (مطلوبة للمصروفات) <span style="color: red;">*</span></label>
+                <textarea id="notes" name="notes" rows="4" placeholder="اكتب سبب المصروفات أو ملاحظاتك هنا..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="returns">المردود</label>
+                <input type="number" id="returns" name="returns" step="0.01" placeholder="أدخل المردود" value="0">
+            </div>
+
+            <div class="form-group">
+                <label for="withdrawal">السحب او عجز</label>
+                <input type="number" id="withdrawal" name="withdrawal" step="0.01" placeholder="أدخل السحب" value="0">
+            </div>
+
+            <div class="form-group">
+                <label for="attachment">إرفاق ملف</label>
+                <input type="file" id="attachment" name="attachment" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+            </div>
+
+            <div class="btn-group">
+                <button type="submit" class="btn-submit">حفظ</button>
+                <button type="reset" class="btn-reset">مسح</button>
+            </div>
+        </form>
+
+        <div class="result" id="result">
+            <div class="result-item">
+                <span class="result-label">الرقم الوظيفي:</span>
+                <span class="result-value" id="displayEmployeeId">-</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">الفرع:</span>
+                <span class="result-value" id="displayBranch">-</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">إجمالي المبيعات:</span>
+                <span class="result-value" id="displaySales">0</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">إجمالي الكاش:</span>
+                <span class="result-value" id="displayCash">0</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">إجمالي مدي:</span>
+                <span class="result-value" id="displayCard">0</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">المصروفات:</span>
+                <span class="result-value" id="displayExpenses">0</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">المردود:</span>
+                <span class="result-value" id="displayReturns">0</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">السحب:</span>
+                <span class="result-value" id="displayWithdrawal">0</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">الملاحظات:</span>
+                <span class="result-value" id="displayNotes">-</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">الملف المرفق:</span>
+                <span class="result-value" id="displayAttachment">لا يوجد</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">المجموع:</span>
+                <span class="result-value" id="displayTotal">0</span>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "firebase/app": "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js",
+                "firebase/firestore": "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js"
+            }
+        }
+    </script>
+    <script type="module">
+        import { initializeApp } from "firebase/app";
+        import { getFirestore, collection, addDoc, serverTimestamp, getDocs, query, where, limit } from "firebase/firestore";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyA3PIfkz7RFVWYGltiyfkUmzQZ7MBPp_hs",
+            authDomain: "manafed-3f18b.firebaseapp.com",
+            databaseURL: "https://manafed-3f18b-default-rtdb.firebaseio.com",
+            projectId: "manafed-3f18b",
+            storageBucket: "manafed-3f18b.firebasestorage.app",
+            messagingSenderId: "977750267755",
+            appId: "1:977750267755:web:172b418b4e4ae683b79e2e"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const form = document.getElementById('salesForm');
+        const result = document.getElementById('result');
+        const expensesInput = document.getElementById('expenses');
+        const notesGroup = document.getElementById('notesGroup');
+        const notesInput = document.getElementById('notes');
+
+        const loginEmployeeId = document.getElementById('loginEmployeeId');
+        const loginPassword = document.getElementById('loginPassword');
+        const btnLogin = document.getElementById('btnLogin');
+        const loginStatus = document.getElementById('loginStatus');
+        const loginCard = document.getElementById('loginCard');
+        const secureArea = document.getElementById('secureArea');
+        let currentEmployee = null;
+
+        const totalSalesInput = document.getElementById('totalSales');
+        const totalCardInput = document.getElementById('totalCard');
+        const tamaraInput = document.getElementById('tamara');
+        const tabbyInput = document.getElementById('tabby');
+        const extraCashInput = document.getElementById('extraCash');
+        const returnsInput = document.getElementById('returns');
+        const withdrawalInput = document.getElementById('withdrawal');
+        const totalCashInput = document.getElementById('totalCash');
+
+        function calculateCash() {
+            const totalSales = parseFloat(totalSalesInput.value) || 0;
+            const totalCard = parseFloat(totalCardInput.value) || 0;
+            const tamara = parseFloat(tamaraInput.value) || 0;
+            const tabby = parseFloat(tabbyInput.value) || 0;
+            const extraCash = parseFloat(extraCashInput.value) || 0;
+            const expenses = parseFloat(expensesInput.value) || 0;
+            const withdrawal = parseFloat(withdrawalInput.value) || 0;
+            const returns = parseFloat(returnsInput.value) || 0;
+
+            const cash = totalSales - totalCard - tamara - tabby - expenses - withdrawal - returns + extraCash;
+            totalCashInput.value = cash.toFixed(2);
+        }
+
+        totalSalesInput.addEventListener('input', calculateCash);
+        totalCardInput.addEventListener('input', calculateCash);
+        tamaraInput.addEventListener('input', calculateCash);
+        tabbyInput.addEventListener('input', calculateCash);
+        extraCashInput.addEventListener('input', calculateCash);
+        returnsInput.addEventListener('input', calculateCash);
+
+        const financingNotesGroup = document.getElementById('financingNotesGroup');
+        const financingNotesInput = document.getElementById('financingNotes');
+
+        function checkFinancingNotes() {
+            const tamaraValue = parseFloat(tamaraInput.value) || 0;
+            const tabbyValue = parseFloat(tabbyInput.value) || 0;
+            if (tamaraValue > 0 || tabbyValue > 0) {
+                financingNotesGroup.style.display = 'block';
+                financingNotesInput.setAttribute('required', 'required');
+            } else {
+                financingNotesGroup.style.display = 'none';
+                financingNotesInput.removeAttribute('required');
+                financingNotesInput.value = '';
+            }
+        }
+
+        tamaraInput.addEventListener('input', checkFinancingNotes);
+        tabbyInput.addEventListener('input', checkFinancingNotes);
+
+        let withdrawalAlertShown = false;
+
+        const btnToggleFinancing = document.getElementById('btnToggleFinancing');
+        const financingGroup = document.getElementById('financingGroup');
+        btnToggleFinancing.addEventListener('click', function() {
+            if (financingGroup.style.display === 'none') {
+                financingGroup.style.display = 'block';
+                btnToggleFinancing.textContent = '💳 إخفاء التمويل';
+            } else {
+                financingGroup.style.display = 'none';
+                btnToggleFinancing.textContent = '💳 تمويل';
+                tamaraInput.value = '0';
+                tabbyInput.value = '0';
+                financingNotesGroup.style.display = 'none';
+                financingNotesInput.removeAttribute('required');
+                financingNotesInput.value = '';
+                calculateCash();
+            }
+        });
+        expensesInput.addEventListener('input', function() {
+            calculateCash();
+            const expensesValue = parseFloat(this.value) || 0;
+            if (expensesValue > 0) {
+                notesGroup.style.display = 'block';
+                notesInput.setAttribute('required', 'required');
+            } else {
+                notesGroup.style.display = 'none';
+                notesInput.removeAttribute('required');
+                notesInput.value = '';
+            }
+        });
+        withdrawalInput.addEventListener('input', function() {
+            calculateCash();
+            const withdrawalValue = parseFloat(this.value) || 0;
+            if (withdrawalValue > 0 && !withdrawalAlertShown) {
+                alert('⚠️ تأكد من تبليغ مديرك بالمبلغ');
+                withdrawalAlertShown = true;
+            }
+        });
+
+        async function saveToFirestore(recordData) {
+            await addDoc(collection(db, 'sales'), {
+                ...recordData,
+                createdAt: serverTimestamp(),
+                clientTimestamp: new Date().toISOString()
+            });
+        }
+
+        function setFormEnabled(enabled) {
+            const controls = Array.from(form.elements).filter(el => el.id !== 'loginEmployeeId' && el.id !== 'loginPassword' && el.id !== 'btnLogin');
+            controls.forEach(el => { el.disabled = !enabled; });
+        }
+
+        btnLogin.addEventListener('click', handleLogin);
+        setFormEnabled(false);
+        secureArea.style.display = 'none';
+
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            if (!currentEmployee) {
+                alert('الرجاء تسجيل الدخول قبل الحفظ');
+                return;
+            }
+
+            const employeeId = document.getElementById('employeeId').value;
+            const branch = document.getElementById('branch').value;
+            const saleDate = document.getElementById('saleDate').value;
+            const totalSales = parseFloat(document.getElementById('totalSales').value) || 0;
+            const totalCash = parseFloat(document.getElementById('totalCash').value) || 0;
+            const totalCard = parseFloat(document.getElementById('totalCard').value) || 0;
+            const tamara = parseFloat(document.getElementById('tamara').value) || 0;
+            const tabby = parseFloat(document.getElementById('tabby').value) || 0;
+            const extraCash = parseFloat(document.getElementById('extraCash').value) || 0;
+            const expenses = parseFloat(document.getElementById('expenses').value) || 0;
+            
+            if ((tamara > 0 || tabby > 0) && !document.getElementById('financingNotes').value.trim()) {
+                alert('يرجى إدخال ملاحظة توضح سبب التمويل (تمارا/تابي)');
+                document.getElementById('financingNotes').focus();
+                return;
+            }
+            
+            if (expenses > 0 && !document.getElementById('notes').value.trim()) {
+                alert('يرجى إدخال ملاحظة توضح سبب المصروفات');
+                document.getElementById('notes').focus();
+                return;
+            }
+            const returns = parseFloat(document.getElementById('returns').value) || 0;
+            const withdrawal = parseFloat(document.getElementById('withdrawal').value) || 0;
+            const notes = document.getElementById('notes').value || '-';
+            const attachmentInput = document.getElementById('attachment');
+            const attachmentName = attachmentInput.files.length > 0 ? attachmentInput.files[0].name : 'لا يوجد';
+
+            const total = totalCash + totalCard;
+
+            // إظهار رسالة تأكيد مع ملخص المدخلات
+            let confirmMessage = '===== ملخص المدخلات =====\n\n';
+            confirmMessage += 'الفرع: ' + branch + '\n';
+            confirmMessage += 'التاريخ: ' + saleDate + '\n';
+            confirmMessage += 'الموظف: ' + employeeId + '\n';
+            confirmMessage += '----------------------------\n';
+            confirmMessage += 'إجمالي المبيعات: ' + totalSales.toFixed(2) + ' ريال\n';
+            confirmMessage += 'الكاش: ' + totalCash.toFixed(2) + ' ريال **\n';
+            confirmMessage += 'مدي: ' + totalCard.toFixed(2) + ' ريال\n';
+            if (tamara > 0) confirmMessage += 'تمارا: ' + tamara.toFixed(2) + ' ريال\n';
+            if (tabby > 0) confirmMessage += 'تابي: ' + tabby.toFixed(2) + ' ريال\n';
+            if (extraCash > 0) confirmMessage += 'كاش زائد: ' + extraCash.toFixed(2) + ' ريال\n';
+            if (expenses > 0) confirmMessage += 'المصروفات: ' + expenses.toFixed(2) + ' ريال\n';
+            if (returns > 0) confirmMessage += 'المردود: ' + returns.toFixed(2) + ' ريال\n';
+            if (withdrawal > 0) confirmMessage += 'السحب: ' + withdrawal.toFixed(2) + ' ريال\n';
+            confirmMessage += '----------------------------\n';
+            confirmMessage += 'هل تؤكد حفظ هذه البيانات؟';
+
+            console.log('Showing confirmation dialog...');
+            const userConfirmed = confirm(confirmMessage);
+            console.log('User confirmation:', userConfirmed);
+            
+            if (!userConfirmed) {
+                console.log('User cancelled, not saving');
+                return;
+            }
+
+            console.log('User confirmed, proceeding to save...');
+
+            document.getElementById('displayEmployeeId').textContent = employeeId;
+            document.getElementById('displayBranch').textContent = branch;
+            document.getElementById('displaySales').textContent = totalSales.toFixed(2) + ' ريال';
+            document.getElementById('displayCash').textContent = totalCash.toFixed(2) + ' ريال';
+            document.getElementById('displayCard').textContent = totalCard.toFixed(2) + ' ريال';
+            document.getElementById('displayExpenses').textContent = expenses.toFixed(2) + ' ريال';
+            document.getElementById('displayReturns').textContent = returns.toFixed(2) + ' ريال';
+            document.getElementById('displayWithdrawal').textContent = withdrawal.toFixed(2) + ' ريال';
+            document.getElementById('displayNotes').textContent = notes;
+            document.getElementById('displayAttachment').textContent = attachmentName;
+            document.getElementById('displayTotal').textContent = total.toFixed(2) + ' ريال';
+
+            const recordData = {
+                employeeId,
+                branch,
+                saleDate,
+                totalSales,
+                totalCash,
+                totalCard,
+                tamara,
+                tabby,
+                extraCash,
+                expenses,
+                returns,
+                withdrawal,
+                notes,
+                financingNotes: document.getElementById('financingNotes').value || '-',
+                attachment: attachmentName
+            };
+
+            try {
+                console.log('Attempting to save to Firestore...', recordData);
+                await saveToFirestore(recordData);
+                console.log('Save successful!');
+                alert('تم حفظ البيانات في Firebase بنجاح!');
+                result.classList.add('show');
+                form.reset();
+                withdrawalAlertShown = false;
+                notesGroup.style.display = 'none';
+                notesInput.removeAttribute('required');
+                financingGroup.style.display = 'none';
+                financingNotesGroup.style.display = 'none';
+                financingNotesInput.removeAttribute('required');
+                totalCashInput.value = '';
+                financingGroup.style.display = 'none';
+                btnToggleFinancing.textContent = '💳 تمويل';
+                document.getElementById('employeeId').value = currentEmployee.employeeId;
+                document.getElementById('employeeId').readOnly = true;
+                document.getElementById('branch').value = currentEmployee.branchName || '';
+                document.getElementById('branch').readOnly = true;
+                document.getElementById('saleDate').value = new Date().toISOString().split('T')[0];
+                result.classList.remove('show');
+            } catch (err) {
+                console.error(err);
+                alert('تعذر الحفظ إلى Firebase. يرجى التحقق من الإعدادات أو الاتصال.');
+            }
+        });
+
+        async function handleLogin() {
+            const id = loginEmployeeId.value.trim();
+            const pass = loginPassword.value.trim();
+            if (!id || !pass) {
+                alert('أدخل الرقم الوظيفي وكلمة المرور');
+                return;
+            }
+            try {
+                const qEmp = query(collection(db, 'employees'), where('employeeId', '==', id), where('password', '==', pass));
+                const snap = await getDocs(qEmp);
+                if (snap.empty) {
+                    alert('بيانات الدخول غير صحيحة');
+                    return;
+                }
+                const data = snap.docs[0].data();
+                currentEmployee = { id: snap.docs[0].id, ...data };
+                loginStatus.textContent = `مسجل كـ ${data.name} - فرع: ${data.branchName || '-'}`;
+                loginStatus.style.color = '#28a745';
+                document.getElementById('employeeId').value = data.employeeId;
+                document.getElementById('employeeId').readOnly = true;
+                document.getElementById('branch').value = data.branchName || '';
+                document.getElementById('branch').readOnly = true;
+                setFormEnabled(true);
+                secureArea.style.display = 'block';
+                loginCard.style.display = 'none';
+            } catch (err) {
+                console.error(err);
+                alert('تعذر تسجيل الدخول. تحقق من الاتصال.');
+            }
+        }
+
+        async function bootstrapAccessIfEmpty() {
+            try {
+                const snap = await getDocs(query(collection(db, 'employees'), limit(1)));
+                if (snap.empty) {
+                    currentEmployee = { id: 'bootstrap', name: 'Setup Mode', branchName: '' };
+                    loginStatus.textContent = 'وضع إنشاء أول حساب (لا توجد بيانات موظفين)';
+                    loginStatus.style.color = '#f39c12';
+                    secureArea.style.display = 'block';
+                    loginCard.style.display = 'none';
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        form.addEventListener('reset', function() {
+            result.classList.remove('show');
+        });
+
+        btnLogin.addEventListener('click', handleLogin);
+        setFormEnabled(false);
+        secureArea.style.display = 'none';
+        bootstrapAccessIfEmpty();
+    </script>
+</body>
+</html>

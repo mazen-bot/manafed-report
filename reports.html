@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>التقارير والبيانات</title>
+    <link rel="stylesheet" href="reports-style.css">
+</head>
+<body>
+    <div class="reports-container">
+        <div class="header">
+            <h1>📊 تقارير المبيعات اليومية</h1>
+            <a href="index.html" class="btn-back">← العودة للصفحة الرئيسية</a>
+        </div>
+
+        <div class="filters-section">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="🔍 بحث (الرقم الوظيفي، الفرع، التاريخ...)">
+            </div>
+            
+            <div class="filter-controls">
+                <div class="filter-group">
+                    <label for="filterBranch">فلتر حسب الفرع:</label>
+                    <select id="filterBranch">
+                        <option value="">جميع الفروع</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="filterDateFrom">من تاريخ:</label>
+                    <input type="date" id="filterDateFrom" style="padding:8px;border:2px solid #3498db;border-radius:8px;">
+                </div>
+
+                <div class="filter-group">
+                    <label for="filterDateTo">إلى تاريخ:</label>
+                    <input type="date" id="filterDateTo" style="padding:8px;border:2px solid #3498db;border-radius:8px;">
+                </div>
+
+                <button class="btn-reset-filter" onclick="resetFilters()">🔄 إعادة تعيين</button>
+                <button class="btn-export" onclick="exportToExcel()">📥 تصدير Excel</button>
+                <button class="btn-clear-all" onclick="clearAllData()">🗑️ مسح جميع البيانات</button>
+            </div>
+        </div>
+
+        <div class="stats-cards">
+            <div class="stat-card">
+                <div class="stat-label">إجمالي السجلات</div>
+                <div class="stat-value" id="totalRecords">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">إجمالي المبيعات</div>
+                <div class="stat-value" id="totalSalesSum">0 ريال</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">إجمالي الكاش</div>
+                <div class="stat-value" id="totalCashSum">0 ريال</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">إجمالي مدي</div>
+                <div class="stat-value" id="totalCardSum">0 ريال</div>
+            </div>
+            <div class="stat-card stat-expenses">
+                <div class="stat-label">إجمالي المصاريف</div>
+                <div class="stat-value" id="totalExpensesSum">0 ريال</div>
+            </div>
+            <div class="stat-card stat-withdrawals">
+                <div class="stat-label">إجمالي السحوبات</div>
+                <div class="stat-value" id="totalWithdrawalsSum">0 ريال</div>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table id="reportsTable">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>تاريخ المبيعات</th>
+                        <th>التاريخ والوقت</th>
+                        <th>الرقم الوظيفي</th>
+                        <th>الفرع</th>
+                        <th>إجمالي المبيعات</th>
+                        <th>الكاش</th>
+                        <th>مدي</th>
+                        <th>تمارا</th>
+                        <th>تابي</th>
+                        <th>كاش زائد</th>
+                        <th>المصروفات</th>
+                        <th>المردود</th>
+                        <th>السحب</th>
+                        <th>الملاحظات</th>
+                        <th>الملف المرفق</th>
+                        <th>الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <tr class="no-data">
+                        <td colspan="13">لا توجد بيانات متاحة</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "firebase/app": "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js",
+                "firebase/firestore": "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js"
+            }
+        }
+    </script>
+    <script type="module">
+        import { initializeApp } from "firebase/app";
+        import { getFirestore, collection, getDocs, orderBy, query, deleteDoc, doc } from "firebase/firestore";
+
+        // عدل هذه القيم من إعدادات مشروع Firebase → Web app
+       // Import the functions you need from the SDKs you need
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyA3PIfkz7RFVWYGltiyfkUmzQZ7MBPp_hs",
+  authDomain: "manafed-3f18b.firebaseapp.com",
+  databaseURL: "https://manafed-3f18b-default-rtdb.firebaseio.com",
+  projectId: "manafed-3f18b",
+  storageBucket: "manafed-3f18b.firebasestorage.app",
+  messagingSenderId: "977750267755",
+  appId: "1:977750267755:web:172b418b4e4ae683b79e2e"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        let allData = [];
+
+        window.onload = function() {
+            loadData();
+        };
+
+        async function loadData() {
+            try {
+                const q = query(collection(db, 'sales'), orderBy('createdAt', 'desc'));
+                const snapshot = await getDocs(q);
+                allData = snapshot.docs.map(docSnap => {
+                    const data = docSnap.data();
+                    const createdAt = data.createdAt?.toDate ? data.createdAt.toDate() : new Date(data.clientTimestamp || Date.now());
+                    return {
+                        id: docSnap.id,
+                        ...data,
+                        createdAt
+                    };
+                });
+                displayData(allData);
+                updateStats(allData);
+                populateBranchFilter();
+            } catch (err) {
+                console.error(err);
+                alert('تعذر تحميل البيانات من Firebase. تحقق من الاتصال أو الإعدادات.');
+            }
+        }
+
+        function displayData(data) {
+            const tableBody = document.getElementById('tableBody');
+            
+            if (data.length === 0) {
+                tableBody.innerHTML = '<tr class="no-data"><td colspan="17">لا توجد بيانات متاحة</td></tr>';
+                return;
+            }
+
+            tableBody.innerHTML = '';
+            data.forEach((record, index) => {
+                const row = document.createElement('tr');
+                const financingNotes = record.financingNotes && record.financingNotes !== '-' ? record.financingNotes : 'لا توجد ملاحظات';
+                const tamaraTooltip = (record.tamara && record.tamara > 0) ? `title="ملاحظات: ${financingNotes}" style="cursor:help;"` : '';
+                const tabbyTooltip = (record.tabby && record.tabby > 0) ? `title="ملاحظات: ${financingNotes}" style="cursor:help;"` : '';
+                
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${record.saleDate || '-'}</td>
+                    <td>${formatDateTime(record.createdAt)}</td>
+                    <td>${record.employeeId}</td>
+                    <td>${record.branch}</td>
+                    <td>${parseFloat(record.totalSales).toFixed(2)}</td>
+                    <td>${parseFloat(record.totalCash).toFixed(2)}</td>
+                    <td>${parseFloat(record.totalCard).toFixed(2)}</td>
+                    <td ${tamaraTooltip}>${parseFloat(record.tamara || 0).toFixed(2)}</td>
+                    <td ${tabbyTooltip}>${parseFloat(record.tabby || 0).toFixed(2)}</td>
+                    <td>${parseFloat(record.extraCash || 0).toFixed(2)}</td>
+                    <td>${parseFloat(record.expenses).toFixed(2)}</td>
+                    <td>${parseFloat(record.returns).toFixed(2)}</td>
+                    <td>${parseFloat(record.withdrawal).toFixed(2)}</td>
+                    <td class="notes-cell">${record.notes || '-'}</td>
+                    <td>${record.attachment || 'لا يوجد'}</td>
+                    <td>
+                        <button class="btn-view" onclick="viewDetails('${record.id}')">👁️</button>
+                        <button class="btn-delete" onclick="deleteRecord('${record.id}')">🗑️</button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function formatDateTime(timestamp) {
+            const date = new Date(timestamp);
+            const dateStr = date.toLocaleDateString('ar-EG');
+            const timeStr = date.toLocaleTimeString('ar-EG');
+            return `${dateStr}<br>${timeStr}`;
+        }
+
+        function updateStats(data) {
+            document.getElementById('totalRecords').textContent = data.length;
+            
+            const totalSales = data.reduce((sum, record) => sum + parseFloat(record.totalSales || 0), 0);
+            const totalCash = data.reduce((sum, record) => sum + parseFloat(record.totalCash || 0), 0);
+            const totalCard = data.reduce((sum, record) => sum + parseFloat(record.totalCard || 0), 0);
+            const totalExpenses = data.reduce((sum, record) => sum + parseFloat(record.expenses || 0), 0);
+            const totalWithdrawals = data.reduce((sum, record) => sum + parseFloat(record.withdrawal || 0), 0);
+            
+            document.getElementById('totalSalesSum').textContent = totalSales.toFixed(2) + ' ريال';
+            document.getElementById('totalCashSum').textContent = totalCash.toFixed(2) + ' ريال';
+            document.getElementById('totalCardSum').textContent = totalCard.toFixed(2) + ' ريال';
+            document.getElementById('totalExpensesSum').textContent = totalExpenses.toFixed(2) + ' ريال';
+            document.getElementById('totalWithdrawalsSum').textContent = totalWithdrawals.toFixed(2) + ' ريال';
+        }
+
+        function populateBranchFilter() {
+            const branches = [...new Set(allData.map(record => record.branch))];
+            const filterBranch = document.getElementById('filterBranch');
+            filterBranch.innerHTML = '<option value="">جميع الفروع</option>';
+            branches.forEach(branch => {
+                const option = document.createElement('option');
+                option.value = branch;
+                option.textContent = branch;
+                filterBranch.appendChild(option);
+            });
+        }
+
+        document.getElementById('searchInput').addEventListener('input', function() {
+            applyFilters();
+        });
+
+        document.getElementById('filterBranch').addEventListener('change', function() {
+            applyFilters();
+        });
+
+        document.getElementById('filterDateFrom').addEventListener('change', function() {
+            applyFilters();
+        });
+
+        document.getElementById('filterDateTo').addEventListener('change', function() {
+            applyFilters();
+        });
+
+        function applyFilters() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const selectedBranch = document.getElementById('filterBranch').value;
+            const dateFrom = document.getElementById('filterDateFrom').value;
+            const dateTo = document.getElementById('filterDateTo').value;
+
+            let filteredData = allData.filter(record => {
+                const matchesSearch = searchTerm === '' || 
+                    record.employeeId.toLowerCase().includes(searchTerm) ||
+                    record.branch.toLowerCase().includes(searchTerm) ||
+                    (record.notes && record.notes.toLowerCase().includes(searchTerm));
+
+                const matchesBranch = selectedBranch === '' || record.branch === selectedBranch;
+
+                let matchesDate = true;
+                if (dateFrom || dateTo) {
+                    const recordDate = record.saleDate || new Date(record.createdAt).toISOString().split('T')[0];
+                    if (dateFrom && dateTo) {
+                        matchesDate = recordDate >= dateFrom && recordDate <= dateTo;
+                    } else if (dateFrom) {
+                        matchesDate = recordDate >= dateFrom;
+                    } else if (dateTo) {
+                        matchesDate = recordDate <= dateTo;
+                    }
+                }
+
+                return matchesSearch && matchesBranch && matchesDate;
+            });
+
+            displayData(filteredData);
+            updateStats(filteredData);
+        }
+
+        function resetFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('filterBranch').value = '';
+            document.getElementById('filterDateFrom').value = '';
+            document.getElementById('filterDateTo').value = '';
+            displayData(allData);
+            updateStats(allData);
+        }
+
+        window.resetFilters = resetFilters;
+
+        function viewDetails(id) {
+            const record = allData.find(r => r.id === id);
+            if (!record) return;
+            alert(`
+تاريخ المبيعات: ${record.saleDate || '-'}
+التاريخ: ${new Date(record.createdAt).toLocaleString('ar-EG')}
+الرقم الوظيفي: ${record.employeeId}
+الفرع: ${record.branch}
+إجمالي المبيعات: ${record.totalSales} ريال
+الكاش: ${record.totalCash} ريال
+مدي: ${record.totalCard} ريال
+تمارا: ${record.tamara || 0} ريال
+تابي: ${record.tabby || 0} ريال
+كاش زائد: ${record.extraCash || 0} ريال
+المصروفات: ${record.expenses} ريال
+المردود: ${record.returns} ريال
+السحب: ${record.withdrawal} ريال
+الملاحظات: ${record.notes || 'لا توجد'}
+الملف المرفق: ${record.attachment || 'لا يوجد'}
+            `);
+        }
+
+        window.viewDetails = viewDetails;
+
+        async function deleteRecord(id) {
+            if (!confirm('هل أنت متأكد من حذف هذا السجل؟')) return;
+            try {
+                await deleteDoc(doc(db, 'sales', id));
+                allData = allData.filter(r => r.id !== id);
+                displayData(allData);
+                updateStats(allData);
+                populateBranchFilter();
+            } catch (err) {
+                console.error(err);
+                alert('تعذر حذف السجل من Firebase.');
+            }
+        }
+
+        window.deleteRecord = deleteRecord;
+
+        async function clearAllData() {
+            if (!confirm('هل أنت متأكد من حذف جميع البيانات؟ هذا الإجراء لا يمكن التراجع عنه!')) return;
+            if (!confirm('تأكيد نهائي: سيتم حذف جميع السجلات!')) return;
+            try {
+                await Promise.all(allData.map(record => deleteDoc(doc(db, 'sales', record.id))));
+                allData = [];
+                displayData(allData);
+                updateStats(allData);
+                populateBranchFilter();
+            } catch (err) {
+                console.error(err);
+                alert('تعذر حذف جميع السجلات من Firebase.');
+            }
+        }
+
+        window.clearAllData = clearAllData;
+
+        function exportToExcel() {
+            if (allData.length === 0) {
+                alert('لا توجد بيانات للتصدير');
+                return;
+            }
+
+            let csv = '\uFEFF';
+            csv += 'الرقم,تاريخ المبيعات,التاريخ,الوقت,الرقم الوظيفي,الفرع,إجمالي المبيعات,الكاش,مدي,تمارا,تابي,كاش زائد,المصروفات,المردود,السحب,الملاحظات,الملف المرفق\n';
+
+            allData.forEach((record, index) => {
+                const date = new Date(record.createdAt);
+                csv += `${index + 1},`;
+                csv += `${record.saleDate || '-'},`;
+                csv += `${date.toLocaleDateString('ar-EG')},`;
+                csv += `${date.toLocaleTimeString('ar-EG')},`;
+                csv += `${record.employeeId},`;
+                csv += `${record.branch},`;
+                csv += `${record.totalSales},`;
+                csv += `${record.totalCash},`;
+                csv += `${record.totalCard},`;
+                csv += `${record.tamara || 0},`;
+                csv += `${record.tabby || 0},`;
+                csv += `${record.extraCash || 0},`;
+                csv += `${record.expenses},`;
+                csv += `${record.returns},`;
+                csv += `${record.withdrawal},`;
+                csv += `"${record.notes || '-'}",`;
+                csv += `${record.attachment || 'لا يوجد'}\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `sales_report_${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        window.exportToExcel = exportToExcel;
+    </script>
+</body>
+</html>
