@@ -29,7 +29,144 @@
         .list th, .list td { padding: 10px 8px; text-align: center; border-bottom: 1px solid #f0f0f0; font-size: 13px; }
         .list th { background: #f3f4f6; font-weight: 700; }
         .tag { display: inline-block; padding: 4px 8px; border-radius: 8px; background: #eef2ff; color: #4c51bf; font-size: 12px; }
-        @media (max-width: 640px) { .list { max-height: none; } }
+        
+        /* ============================================ */
+        /* Media Queries - التوافقية مع جميع الأجهزة */
+        /* ============================================ */
+        
+        /* الهواتف الذكية (تحت 768px) */
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+            
+            .container {
+                padding: 18px;
+                border-radius: 12px;
+            }
+            
+            .header {
+                margin-bottom: 15px;
+                gap: 8px;
+            }
+            
+            h1 {
+                font-size: 20px;
+                width: 100%;
+                text-align: center;
+                order: 2;
+            }
+            
+            a.btn {
+                padding: 8px 12px;
+                font-size: 12px;
+                flex: 1;
+                text-align: center;
+                min-width: 120px;
+            }
+            
+            .grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            
+            .list {
+                max-height: 250px;
+            }
+        }
+        
+        /* الهواتف الصغيرة (تحت 480px) */
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                padding: 12px;
+            }
+            
+            h1 {
+                font-size: 18px;
+            }
+            
+            .card {
+                padding: 12px;
+                margin-bottom: 12px;
+            }
+            
+            .card h2 {
+                font-size: 16px;
+                margin-bottom: 10px;
+            }
+            
+            .field {
+                margin-bottom: 10px;
+            }
+            
+            label {
+                font-size: 13px;
+                margin-bottom: 5px;
+            }
+            
+            input, select {
+                padding: 9px 10px;
+                font-size: 14px;
+                border-radius: 8px;
+            }
+            
+            button {
+                padding: 10px;
+                font-size: 14px;
+            }
+            
+            .list table {
+                font-size: 11px;
+            }
+            
+            .list th, .list td {
+                padding: 8px 4px;
+                font-size: 11px;
+            }
+            
+            .permissions {
+                gap: 6px 8px;
+            }
+            
+            .perm-item {
+                font-size: 13px;
+                gap: 4px;
+            }
+        }
+        
+        /* الهواتف الصغيرة جداً (تحت 360px) */
+        @media (max-width: 360px) {
+            .container {
+                padding: 10px;
+            }
+            
+            h1 {
+                font-size: 16px;
+            }
+            
+            a.btn {
+                padding: 7px 10px;
+                font-size: 11px;
+            }
+            
+            input, select {
+                font-size: 15px; /* منع التكبير التلقائي في iOS */
+            }
+            
+            button {
+                padding: 9px;
+                font-size: 13px;
+            }
+            
+            .list {
+                max-height: 200px;
+            }
+        }
+    
     </style>
 </head>
 <body>

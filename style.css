@@ -23,6 +23,44 @@ body {
     width: 100%;
 }
 
+/* المحمول الصغير جداً (تحت 360px) */
+@media (max-width: 360px) {
+    body {
+        padding: 10px;
+    }
+    
+    .container {
+        border-radius: 15px;
+        padding: 20px;
+        max-width: 100%;
+    }
+    
+    h1 {
+        font-size: 20px !important;
+    }
+}
+
+/* الهواتف الذكية (360px - 600px) */
+@media (max-width: 600px) {
+    body {
+        padding: 15px;
+    }
+    
+    .container {
+        border-radius: 15px;
+        padding: 25px;
+        max-width: 100%;
+    }
+}
+
+/* الأجهزة اللوحية (600px - 900px) */
+@media (max-width: 900px) {
+    .container {
+        max-width: 100%;
+        padding: 30px;
+    }
+}
+
 .header-with-button {
     display: flex;
     justify-content: space-between;
@@ -30,6 +68,15 @@ body {
     margin-bottom: 30px;
     gap: 15px;
     flex-wrap: wrap;
+}
+
+/* تحسين الهواتف الذكية */
+@media (max-width: 600px) {
+    .header-with-button {
+        flex-direction: column;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
 }
 
 .btn-reports {
@@ -56,6 +103,20 @@ h1 {
     font-size: 28px;
 }
 
+/* تحسين الهواتف الذكية */
+@media (max-width: 600px) {
+    h1 {
+        font-size: 22px;
+    }
+}
+
+/* تحسين الهواتف الصغيرة جداً */
+@media (max-width: 360px) {
+    h1 {
+        font-size: 18px;
+    }
+}
+
 .form-group {
     margin-bottom: 25px;
 }
@@ -79,6 +140,21 @@ textarea {
     transition: all 0.3s ease;
     direction: rtl;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* تحسين الهواتف الذكية */
+@media (max-width: 600px) {
+    input[type="number"],
+    input[type="text"],
+    textarea {
+        padding: 10px 12px;
+        font-size: 16px; /* يمنع التكبير التلقائي في iOS */
+        border-radius: 8px;
+    }
+    
+    textarea {
+        min-height: 80px;
+    }
 }
 
 input[readonly] {
@@ -119,6 +195,20 @@ input[type="file"]:hover {
     display: flex;
     gap: 10px;
     margin-top: 30px;
+}
+
+/* تحسين الهواتف الذكية */
+@media (max-width: 600px) {
+    .btn-group {
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 25px;
+    }
+    
+    button {
+        padding: 12px;
+        font-size: 14px;
+    }
 }
 
 button {
@@ -220,4 +310,97 @@ button {
 
 #notesGroup label {
     color: #856404;
+}
+
+/* ============================================ */
+/* Media Queries - التوافقية مع جميع الأجهزة */
+/* ============================================ */
+
+/* الأجهزة اللوحية الكبيرة (900px - 1200px) */
+@media (min-width: 900px) {
+    .container {
+        max-width: 700px;
+    }
+}
+
+/* الهواتف الذكية (600px - 900px) */
+@media (max-width: 900px) {
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    label {
+        font-size: 14px;
+        margin-bottom: 6px;
+    }
+    
+    .result-item {
+        flex-direction: column;
+        gap: 5px;
+    }
+}
+
+/* الهواتف الذكية الصغيرة (تحت 600px) */
+@media (max-width: 600px) {
+    input[type="text"],
+    input[type="password"],
+    input[type="number"],
+    input[type="date"],
+    select,
+    textarea {
+        font-size: 16px; /* منع التكبير التلقائي في iOS */
+    }
+    
+    .form-group {
+        margin-bottom: 18px;
+    }
+    
+    label {
+        font-size: 14px;
+        margin-bottom: 6px;
+    }
+    
+    .result {
+        padding: 15px;
+        margin-top: 20px;
+    }
+    
+    .result-item {
+        padding: 8px 0;
+        font-size: 13px;
+    }
+    
+    .result-item:last-child {
+        font-size: 16px;
+    }
+}
+
+/* الهواتف الصغيرة جداً (تحت 360px) */
+@media (max-width: 360px) {
+    .container {
+        padding: 15px;
+    }
+    
+    .form-group {
+        margin-bottom: 15px;
+    }
+    
+    label {
+        font-size: 13px;
+    }
+    
+    input[type="text"],
+    input[type="password"],
+    input[type="number"],
+    input[type="date"],
+    select,
+    textarea {
+        font-size: 15px;
+        padding: 8px 10px;
+    }
+    
+    button {
+        font-size: 13px;
+        padding: 10px;
+    }
 }
